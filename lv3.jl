@@ -1,5 +1,6 @@
 using LinearAlgebra
 
+
 function initialize(c, A, b)
 
     # Create a starting matrix of zeros
@@ -21,12 +22,24 @@ end
     
         # Main loop
         while (true)
-            # Find the pivot column (entering variable)
-            pivot_col = findmax(tableau[1, 2:end])[2] + 1
+
+            # Find the pivot column (entering variable) + randomness
+            pivot_col_indices = findall(x -> x == minimum(tableau[1, 2:end]), tableau[1, 2:end])
+            pivot_col = rand(pivot_col_indices) + 1
 
             #Checking for unboundedness
             if all(tableau[2:end, pivot_col] .<= 0)
                 error("Unbounded!")
+            end
+
+            # Check for infeasibility
+            if any(tableau[2:end, 1] .< 0) && all(tableau[2:end, 2:end] .>= 0)
+                error("Infeasible solution!")
+            end
+
+            # Check for multiple optimal solutions
+            if any(tableau[1, 2:end] .== 0)
+                println("Multiple optimal solutions exist")
             end
 
             # Check for optimality
@@ -63,7 +76,7 @@ end
        ]
    b = [1; 3]
    c = [3; 1]
-   A = [0.5 0.3
-        0.1 0.2]
-   b=[150; 60]
+   A = [1 1
+        -1 -1]
+   b=[2; -3]
    result = simplex(c, A, b)
