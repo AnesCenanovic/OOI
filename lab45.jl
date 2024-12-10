@@ -135,7 +135,344 @@ function general_simplex(goal, c, A, b, csigns, vsigns)
             end 
         end
         
-        simplex_table = hcat(simplex_table, matrix); # merge
+        simplex_table = hcat(simplex_table, matrix) # merge
+
+        for i in 1: columns + 1
+            M1 = 0
+            for j in 1: rows
+                if(csigns[j] != -1)
+                    M1 += simplex_table[j,i];
+                end
+            end
+            push!(M, M1);
+        end
+    
+        for i in (columns + 2) : size(v1, 1) + v5 + columns + 1
+            counter = 0; # sluzi nam za provjeravanje da li je element -1
+            for j in 1 : rows
+                if (simplex_table[j,i] == -1)
+                    counter = 1
+                end
+            end
+            if (counter == 0)
+                push!(M, 0)
+            elseif (counter == 1)
+                push!(M, -1)
+            end
+        end
+
+        M = hcat(M) 
+        M = transpose(M)
+        simplex_tabele = vcat(simplex_table, M)
+        
+        push!(v3,0) 
+        simplex_table = hcat(p3, simplex_table) # dodajemo elemente iz baze u tabelu 
+
+    for i in 1 : v5 
+        push!(c,0)
+    end
+
+    c = hcat(c)
+    c = transpose(c)
+
+    Z = Vector{Float64}() # Z red
+    push!(Z, 0)
+    push!(Z, 0)
+
+    Z = hcat(Z) 
+    Z = transpose(Z)
+
+    Z = hcat(Z, c)
+
+    if (goal == "min")
+        Z = Z .* (-1)
+    end   
+    simplex_table = vcat(simplex_table, Z) # final table
+
+    pomocna = true
+
+    while (true)
+        writedlm(stdout, simplex_table)
+        max_el1 = 0
+        max_el2 = 0
+        max_column = 3 # krećemo od treće jer se u prvoj nalaze imena varijabli u bazi a u drugoj njihove vrijednosti
+        for i in 3 : columns + v5 + 2
+            if (simplex_table[rows + 1, i] == max_el1)
+                if (simplex_table[rows + 2, i] > max_el2)
+                    max_el1 = simplex_table[rows + 1, i]
+                    max_el2 = simplex_table[rows + 2, i]
+                    max_column = i
+                end
+            elseif (simplex_table[redovi + 1, i] > max_el1)
+                max_el1 = simplex_table[rows + 1, i]
+                max_el2 = simplex_table[rows+ 2, i]
+                max_column = i
+            end
+        end
+
+
+        if (size(v4,1) != 0)
+            for i in 1 : rows
+                for j in 1 : size(v4, 1) - 1
+                    if (simplex_table[i,1] == v4[j])
+                        if (max_el1 == 0)
+                            pomocna = false;
+                            for k in 3 : columns + v5 + 2
+                                if (simplex_table[rows + 2,i] > max_el1)
+                                    max_el1 = simplex_table[rows + 2, k]
+                                    max_column = k
+                                end
+                            end 
+                        end      
+                    end
+                end
+            end
+        end
+
+        if (max_el1 == 0 && max_el2 == 0)
+            for i in 1 : rows # rješenje nije pronađeno ukoliko je neka od vještačkih u bazi
+                for j in 1 : size(v4, 1)
+                    if (simplex_table[i,1] == v4[j])
+                        print("Cannot find solution")
+                        return 0
+                    end
+                end
+            end
+        end
+
+        rjesenje_degenerirano = false
+        for i in 1 : rows # rjesenje je degenerirano ukoliko u bazi imamo promjenljivu koja ima vrijednost 0
+            if (simplex_table[i,2] == 0)
+                rjesenje_degenerirano = true
+                print("Degenerate solution")
+            end
+        end
+
+        # rjesenje nije jedinstveno ukoliko neka od nebaznih promjenljivih ima koeficijent 0
+        rjesenje_jedinstveno = true
+        for i in 3 : size(simplex_table, 2)
+            var_b = false
+            var_v = false
+            for j in 1 : rows
+                if(simplex_table[j, 1] == i - 2)
+                    var_b = true
+                    break
+                end
+            end
+            if (var_b == false && simplex_table[rows + 2, i] == 0)
+                for k in 1 : size(v4, 1) 
+                    if (v4[k] == i - 2)
+                        var_v = true
+                        break
+                    end
+                end
+                if (var_v == false)
+                    rjesenje_jedinstveno = false
+                    print("Nadjeno rjesenje nije jedinstveno\n")
+                    break
+                end
+            end
+        end
+
+        if (rjesenje_jedinstveno == true)
+            println("Nadjeno rjesenje je jedinstveno\n")
+        end
+
+        status_rjesenja = 0
+        if (rjesenje_degenerirano == false && rjesenje_jedinstveno == true) 
+            status_rjesenja = 0
+        elseif (rjesenje_degenerirano == true && rjesenje_jedinstveno == true)
+            status_rjesenja = 1
+        elseif (rjesenje_jedinstveno == false) 
+            status_rjesenja = 2
+        end
+
+        if (size(v2,1) > 0)
+            for i in 1 : size(v2, 1)
+                for j in 1 : rows
+                    if (simplex_table[j,1] == v2[j])
+                        simplex_table[j,2] = simplex_table[j,2] * (-1)
+                        break
+                    end
+                 end
+            end
+        end
+
+        output = Vector{Int32}()
+        print("Rjesenja su: \n")
+        if (size(v1,1) > 0)
+            for i in 1 : size(v1, 1)
+                p1 = 0;
+                p2 = 0;
+                for j in 1 : rows 
+                    if (simplex_table[j,1] == v1[i] - columns)
+                        p1 = simplex_table[j,2]
+                        break
+                    end
+                    if (simplex_table[j,1] == v1[i])
+                        v2 = simplex_table[j,2]
+                        break
+                    end
+                end
+
+                println("x%d je %f.\n", v1[i] - kolone, p1 - p2)
+                push!(output, p1)
+                push!(output, p2)
+            end
+        end
 
         
+        for i in 1 : rows
+            check = false
+            for j in 1 : size(output, 1)
+                if (simplex_table[i,1] == output[j])
+                    provjera = true
+                end
+            end
+            if (check == false)
+                @printf("x%d je %f. \n", simplex_table[i,1], simplex_table[i,2])
+                push!(output, simplex_table[i,1])
+            end
+        end
+
+        for i in 3 : size(simplex_table,1)
+            check = false
+            for j in 1 : size(output, 1)
+                if (i - 2 == output[j])
+                    check = true
+                end
+            end
+            if (check == false)
+                @printf("x%f je 0 \n", i - 2)
+                push!(output, i - 2)
+            end
+        end
+
+        s1 = Vector{Float64}()
+        sd1 = Vector{Float64}()
+        for i in 3: size(simplex_table, 2)
+            check = false;
+            for j in 1: rows
+                if (simplex_table[j, 1] == i - 2)
+                    for k in 1: size(x1, 1)
+                        if (i - 2 == x1[k])
+                            check = true
+                            push!(sd1, simplex_table[j, 2])
+                        end
+                    end
+                    if (check == false)
+                        check= true
+                        push!(s1, simplex_tabela[j, 2])
+                    end
+                end
+            end
+            if (check == false)
+                for l in 1: size(x1, 1)
+                    if (i - 2 == x1[l])
+                        check == true
+                        push!(sd1, 0)
+                    end
+                end
+                if (check == false)
+                    check = true
+                    push!(s1, 0)
+                end
+            end
+        end
+
+        y = Vector{Float64}()
+        for i in 1: size(csigns, 1)
+            if (csigns[i] == -1 && goal == "max" || csigns[i] == 1 && goal == "min")
+                push!(y, simplex_table[rows + 2, columns + i + 2] * (-1))
+            elseif (csigns[i] == 1 && goal == "max" || csigns[i] == -1 && goal == "min")
+                push!(y, simplex_table[rows + 2, columns + i + 2])
+            else
+                if (goal == "min")
+                    push!(y, simplex_table[rows + 2, columns + i + 2] + simplex_table[rows + 1, columns + i + 2])
+                elseif (goal == "max")
+                    push!(y, simplex_table[rows + 2, columns + i + 2] * (-1) + simplex_table[rows + 1, columns + i + 2])
+                end
+            end
+        end
+
+        yd = Vector{Float64}()
+        for j in 3: size(vsigns, 1) + 2
+            push!(yd, simplex_table[rows + 2, j]*(-1))
+        end
+
+        print(yd)
+        writedlm(stdout, simplex_tabela)
+
+        rezultat = simplex_table[rows + 2, 2]
+
+        if (goal == "max")
+            rezultat= rezultat * (-1)
+        end
+
+        print("Konacna vrijednost funkcije cilja Z = ")
+        print(rezultat)
+
+        @printf("Bazne promjenljive optimalnog rjesenja su B = (")
+
+        for i in 1 : rows
+            @printf("x%d ", simplex_table[i,1])
+        end
+
+        @printf(")\n")
+
+        return rezultat, x1, xd, y, yd, status
+    end
+
+    #ovdje tražimo pivot element
+    min = 1;
+    for i in 1 : redovi
+        #uzima prvi dozvoljen kolicnik za minimum
+        if (simplex_tabela[i, max_kolona] > 0)
+            min = i;
+            break
+        end
+    end
+
+    provjera1 = 0; # provjeravamo ima li pozitivnih elemenata u redu sa pivot elementima
+    for i in 1 : redovi
+        if (simplex_tabela[i, max_kolona] > 0)
+            provjera = 1;
+            if (simplex_tabela[i, 2] / simplex_tabela[i, max_kolona] < simplex_tabela[min, 2] / simplex_tabela[min, max_kolona])
+                min = i;
+            end
+        end
+    end
+
+    if (provjera1 == 0)
+        print("Ima beskonačno mnogo rješenja.\n");
+        println(max_kolona);
+        return 0;
+    end
+    pivot_element = simplex_tabela[min, max_kolona];
+
+    for i in 2 : kolone + p5 + 2
+        simplex_tabela[min,i] = simplex_tabela[min,i] * (1/pivot_element); # mnozimo cijeli red da bismo dobili 1 na mjesto pivot elementa
+    end
+
+    for i in 1 : redovi + 2
+        if (i != min)
+            if (pomocna == false && i == redovi + 1)
+                i = i + 1;
+                continue;
+            end
+            for j in 2 : kolone + p5 + 2
+                simplex_tabela[i,j] = simplex_tabela[min,j] * simplex_tabela[i, max_kolona] * (-1) + simplex_tabela[i,j];
+                if((simplex_tabela[i,j] > 0 && simplex_tabela[i,j] < 0.0000000001) || (simplex_tabela[i,j] > -0.00000001 && simplex_tabela[i,j] < 0))
+                    simplex_tabela[i,j] = 0;
+            end
+        end
+    end
+    println("Pivot element je: ", pivot_element);
+    println("Element koji ulazi u bazu je x", max_kolona-2);
+    println("Element koji izlazi iz baze je x", simplex_tabela[min,1]);
+    simplex_tabela[min,1] = max_kolona-2; #ubacivanje u bazu
+    end
 end
+
+general_simplex("max", [1, 1], [-3 1; -1 3], [-1, 5], [-1, 1], [1, 1])
+general_simplex("min", [5, 8], [1 3; 2 1; 1 2], [100, 300, 200], [1, 1, 1], [0, 0])
