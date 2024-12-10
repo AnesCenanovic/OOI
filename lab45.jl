@@ -8,13 +8,13 @@ function general_simplex(goal, c, A, b, csigns, vsigns)
 
     #data validity
 
-        if(goal !="max" || goal !="min" || A == nothing || b == nothing || c==nothing)
+        if(!(goal =="max" || goal =="min") || A == nothing || b == nothing || c== nothing)
             println("Invalid arguments!")
             return 0
         end
 
         for i in 1:size(csigns, 1)
-            if(csigns[i] != 1 || csigns[i] != -1 || csigns[i] != 0)
+            if(!(csigns[i] == 1 || csigns[i] == -1 || csigns[i] == 0))
                 println("Invalid condition signs!")
                 return 0
             end
@@ -75,7 +75,7 @@ function general_simplex(goal, c, A, b, csigns, vsigns)
         v6 = 1 # help2 variable
         M = Vector{Float64}() # big M
 
-        for i in 1: kolone
+        for i in 1: columns
             if (vsigns[i] == 0)
 
                 push!(v1, columns + 1 + size(v1,1))
@@ -148,7 +148,7 @@ function general_simplex(goal, c, A, b, csigns, vsigns)
         end
     
         for i in (columns + 2) : size(v1, 1) + v5 + columns + 1
-            counter = 0; # sluzi nam za provjeravanje da li je element -1
+            counter = 0 # sluzi nam za provjeravanje da li je element -1
             for j in 1 : rows
                 if (simplex_table[j,i] == -1)
                     counter = 1
@@ -163,10 +163,10 @@ function general_simplex(goal, c, A, b, csigns, vsigns)
 
         M = hcat(M) 
         M = transpose(M)
-        simplex_tabele = vcat(simplex_table, M)
+        simplex_table = vcat(simplex_table, M)
         
         push!(v3,0) 
-        simplex_table = hcat(p3, simplex_table) # dodajemo elemente iz baze u tabelu 
+        simplex_table = hcat(v3, simplex_table) # dodajemo elemente iz baze u tabelu 
 
     for i in 1 : v5 
         push!(c,0)
@@ -203,7 +203,7 @@ function general_simplex(goal, c, A, b, csigns, vsigns)
                     max_el2 = simplex_table[rows + 2, i]
                     max_column = i
                 end
-            elseif (simplex_table[redovi + 1, i] > max_el1)
+            elseif (simplex_table[rows+ 1, i] > max_el1)
                 max_el1 = simplex_table[rows + 1, i]
                 max_el2 = simplex_table[rows+ 2, i]
                 max_column = i
@@ -302,22 +302,22 @@ function general_simplex(goal, c, A, b, csigns, vsigns)
         print("Rjesenja su: \n")
         if (size(v1,1) > 0)
             for i in 1 : size(v1, 1)
-                p1 = 0;
-                p2 = 0;
+                var1 = 0
+                var2 = 0
                 for j in 1 : rows 
                     if (simplex_table[j,1] == v1[i] - columns)
-                        p1 = simplex_table[j,2]
+                        var1 = simplex_table[j,2]
                         break
                     end
                     if (simplex_table[j,1] == v1[i])
-                        v2 = simplex_table[j,2]
+                        var2 = simplex_table[j,2]
                         break
                     end
                 end
 
-                println("x%d je %f.\n", v1[i] - kolone, p1 - p2)
-                push!(output, p1)
-                push!(output, p2)
+                println("x%d je %f.\n", v1[i] - columns, var1 - var2)
+                push!(output, var1)
+                push!(output, var2)
             end
         end
 
@@ -330,7 +330,7 @@ function general_simplex(goal, c, A, b, csigns, vsigns)
                 end
             end
             if (check == false)
-                @printf("x%d je %f. \n", simplex_table[i,1], simplex_table[i,2])
+                println("x%d je %f. \n", simplex_table[i,1], simplex_table[i,2])
                 push!(output, simplex_table[i,1])
             end
         end
@@ -343,7 +343,7 @@ function general_simplex(goal, c, A, b, csigns, vsigns)
                 end
             end
             if (check == false)
-                @printf("x%f je 0 \n", i - 2)
+                println("x%f je 0 \n", i - 2)
                 push!(output, i - 2)
             end
         end
@@ -362,7 +362,7 @@ function general_simplex(goal, c, A, b, csigns, vsigns)
                     end
                     if (check == false)
                         check= true
-                        push!(s1, simplex_tabela[j, 2])
+                        push!(s1, simplex_table[j, 2])
                     end
                 end
             end
@@ -401,7 +401,7 @@ function general_simplex(goal, c, A, b, csigns, vsigns)
         end
 
         print(yd)
-        writedlm(stdout, simplex_tabela)
+        writedlm(stdout, simplex_table)
 
         rezultat = simplex_table[rows + 2, 2]
 
@@ -409,68 +409,68 @@ function general_simplex(goal, c, A, b, csigns, vsigns)
             rezultat= rezultat * (-1)
         end
 
-        print("Konacna vrijednost funkcije cilja Z = ")
-        print(rezultat)
+        println("Konacna vrijednost funkcije cilja Z = ")
+        println(rezultat)
 
-        @printf("Bazne promjenljive optimalnog rjesenja su B = (")
+        println("Bazne promjenljive optimalnog rjesenja su B = (")
 
         for i in 1 : rows
-            @printf("x%d ", simplex_table[i,1])
+            println("x%d ", simplex_table[i,1])
         end
 
-        @printf(")\n")
+        println(")\n")
 
-        return rezultat, x1, xd, y, yd, status
+        return rezultat, s1, sd1, y, yd, status_rjesenja
     end
 
     #ovdje tražimo pivot element
-    min = 1;
-    for i in 1 : redovi
+    min = 1
+    for i in 1 : rows
         #uzima prvi dozvoljen kolicnik za minimum
-        if (simplex_tabela[i, max_kolona] > 0)
-            min = i;
+        if (simplex_table[i, max_column] > 0)
+            min = i
             break
         end
     end
 
-    provjera1 = 0; # provjeravamo ima li pozitivnih elemenata u redu sa pivot elementima
-    for i in 1 : redovi
-        if (simplex_tabela[i, max_kolona] > 0)
-            provjera = 1;
-            if (simplex_tabela[i, 2] / simplex_tabela[i, max_kolona] < simplex_tabela[min, 2] / simplex_tabela[min, max_kolona])
-                min = i;
+    provjera1 = 0 # provjeravamo ima li pozitivnih elemenata u redu sa pivot elementima
+    for i in 1 : rows
+        if (simplex_table[i, max_column] > 0)
+            provjera = 1
+            if (simplex_table[i, 2] / simplex_table[i, max_column] < simplex_table[min, 2] / simplex_table[min, max_column])
+                min = i
             end
         end
     end
 
     if (provjera1 == 0)
-        print("Ima beskonačno mnogo rješenja.\n");
-        println(max_kolona);
-        return 0;
+        print("Ima beskonačno mnogo rješenja.\n")
+        println(max_column)
+        return 0
     end
-    pivot_element = simplex_tabela[min, max_kolona];
+    pivot = simplex_table[min, max_column]
 
-    for i in 2 : kolone + p5 + 2
-        simplex_tabela[min,i] = simplex_tabela[min,i] * (1/pivot_element); # mnozimo cijeli red da bismo dobili 1 na mjesto pivot elementa
+    for i in 2 : columns+ v5 + 2
+        simplex_table[min,i] = simplex_table[min,i] * (1/pivot) # mnozimo cijeli red da bismo dobili 1 na mjesto pivot elementa
     end
 
-    for i in 1 : redovi + 2
+    for i in 1 : rows + 2
         if (i != min)
-            if (pomocna == false && i == redovi + 1)
-                i = i + 1;
-                continue;
+            if (pomocna == false && i == rows + 1)
+                i = i + 1
+                continue
             end
-            for j in 2 : kolone + p5 + 2
-                simplex_tabela[i,j] = simplex_tabela[min,j] * simplex_tabela[i, max_kolona] * (-1) + simplex_tabela[i,j];
-                if((simplex_tabela[i,j] > 0 && simplex_tabela[i,j] < 0.0000000001) || (simplex_tabela[i,j] > -0.00000001 && simplex_tabela[i,j] < 0))
-                    simplex_tabela[i,j] = 0;
+            for j in 2 : columns + v5 + 2
+                simplex_table[i,j] = simplex_table[min,j] * simplex_table[i, max_column] * (-1) + simplex_table[i,j]
+                if((simplex_table[i,j] > 0 && simplex_table[i,j] < 0.0000000001) || (simplex_table[i,j] > -0.00000001 && simplex_table[i,j] < 0))
+                    simplex_table[i,j] = 0
             end
         end
     end
-    println("Pivot element je: ", pivot_element);
-    println("Element koji ulazi u bazu je x", max_kolona-2);
-    println("Element koji izlazi iz baze je x", simplex_tabela[min,1]);
-    simplex_tabela[min,1] = max_kolona-2; #ubacivanje u bazu
+    println("Pivot element je: ", pivot)
+    println("Element koji ulazi u bazu je x", max_column-2)
+    println("Element koji izlazi iz baze je x", simplex_table[min,1])
+    simplex_table[min,1] = max_column - 2 #ubacivanje u bazu
     end
 end
 
