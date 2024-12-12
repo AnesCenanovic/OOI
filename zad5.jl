@@ -475,5 +475,25 @@ function general_simplex(goal, c, A, b, csigns, vsigns)
 end
 
 println("-------------------------------------------------------------------------")
-general_simplex("max", [1, 1], [-3 1; -1 3], [-1, 5], [-1, 1], [1, 1])
-general_simplex("min", [5, 8], [1 3; 2 1; 1 2], [100, 300, 200], [1, 1, 1], [0, 0])
+
+#test1
+#Z=3000;  X=(60 20) Xd(90 0 60 100 0 40); Y(0 30 0 0 10 0) Yd(0 0) status(0)
+goal="max";
+c=[40; 30];
+A=[3 1.5;1 1;2 1;3 4;1 0;0 1];
+b=[300; 80; 200; 360; 60; 60] 
+csigns=[-1; -1; -1; -1; -1; -1] 
+vsigns=[1;  1] 
+Z,X,Xd,Y,Yd,status
+general_simplex(goal,c,A,b,csigns,vsigns)
+
+#test2
+#Z=12;  X=(12 0) Xd(14 4 0); Y(0 0 1) Yd(0 0.5); status(0)
+goal="min";
+c=[1; 1.5];
+A=[2 1; 1 1; 1 1];
+b=[10; 8; 12] 
+csigns=[1; 1; 1] 
+vsigns=[1;  1] 
+Z,X,Xd,Y,Yd,status
+general_simplex(goal,c,A,b,csigns,vsigns)
