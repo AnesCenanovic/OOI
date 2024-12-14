@@ -250,7 +250,7 @@ function general_simplex(goal, c, A, b, csigns, vsigns)
         is_unique = true
         for i in 1:(lastindex(duals)-lastindex(vjestacke_var))
             if x[i] == 0 && duals[i] == 0
-                jedinstveno = false
+                is_unique= false
             end
         end
 
@@ -488,18 +488,18 @@ println(Yd)
 println(status)
 
 #Zadatak 2
-#Naši testni primjeri - / PROLAZE SVI
+#Drugi Testni primjeri iz knjige uglavnom
 
-#Primjer 1
-#Klasicni problem maximizacije uz sva ogranicenja <=
+#test 1
+#Klasicna maksimizacija
 
-#Zadatak Poglavlje 3_Linerarno programiranje strana 40
-#Z = 780000, X=( 600, 300), Xd=(0, 0, 1550, 250), Y=(600/173, 8600/173, 0, 0), Yd=(0, 0), status = 0
+#Primjer 3.8 iz Linearnog programiranja knjiga str 105
+#Z = 900, X=( 300, 0), Xd=(0, 30), Y=(6, 0), Yd=(0, 0.8), status = 0
 goal="max";
-c=[800 1000];
-A=[30 16; 14 19; 11 26; 0 1];
-b=[22800 14100 15950 550] 
-csigns=[-1 -1 -1 -1] 
+c=[3 1];
+A=[0.5 0.3; 0.1 0.2];
+b=[150 60] 
+csigns=[-1 -1] 
 vsigns=[1 1] 
 Z,X,Xd,Y,Yd,status=general_simplex(goal,c,A,b,csigns,vsigns)
 println(Z)
@@ -509,18 +509,18 @@ println(Y)
 println(Yd)
 println(status)
 
-#Primjer 2
-#Klasicni problem maximizacije uz sva ogranicenja <=
+#test 2
+#Klasicna maksimizacija
 
-#Zadatak Poglavlje 3_Linerarno programiranje strana 38
-#Z = 900, X=(300, 0), Xd=(0, 30), Y=(6, 0), Yd=(0, 0.8), status = 0
-b = [150 60]
-A = [[0.5 0.3]; [0.1 0.2]]
-c = [3 1]
-goal = "max"
-csigns = [-1 -1]
+#Primjer 3.10 iz Linearnog programiranja knjiga str 111
+#Z = 780000, X=(600, 300), Xd=(0, 0, 1550, 250), Y=(600/173, 8600/173, 0, 0), Yd=(0, 0), status = 0
+goal = "max";
+c = [800 1000];
+A = [30 16; 14 19; 11 26; 0 1];
+b = [22800 14100 15950 550]
+csigns = [-1 -1 -1 -1]
 vsigns = [1 1]
-Z, X, Xd, Y, Yd, status = general_simplex(goal, c, A, b, csigns, vsigns)
+Z,X,Xd,Y,Yd,status = general_simplex(goal,c,A,b,csigns,vsigns)
 println(Z)
 println(X)
 println(Xd)
@@ -528,16 +528,15 @@ println(Y)
 println(Yd)
 println(status)
 
-#Primjer 3
-#Problem maximizacije konstruisan sa ciljem pojave degenerisanih tacaka u procesu rjesavanja 
-# za provjeru da li ce algoritam upasti u beskonacnu petlju
+#test 3
+#maskimizacija ali namještena za pojavu degeneracije 
 
-#Zadatak Poglavlje 3_Linerarno programiranje strana 45
+#Linearno programiranje knjiga strana 121
 #Z = 5, X=(1, 0, 1, 0), Xd=(3/4, 0, 0), Y=(0, 6, 5), Yd=(0, 8, 0, 42), status = 0
-b = [0 0 1]
-A = [[0.25 -8 -1 9]; [0.5 -12 -0.5 3]; [0 0 1 0]]
-c = [3 -80 2 -24]
 goal = "max"
+c = [3 -80 2 -24]
+b = [0 0 1]
+A = [0.25 -8 -1 9; 0.5 -12 -0.5 3; 0 0 1 0]
 csigns = [-1 -1 -1]
 vsigns = [1 1 1 1]
 Z, X, Xd, Y, Yd, status = general_simplex(goal, c, A, b, csigns, vsigns)
@@ -548,17 +547,17 @@ println(Y)
 println(Yd)
 println(status)
 
-#Primjer 4
-#Klasicni problem minimizacije sa ogranicenjima >=
+#test 4
+#Klasicna minimizacija
 
-#Zadatak Poglavlje 3_Linerarno programiranje strana 53
+#Primjer 3.13 iz Linearnog programiranja knjiga str 133
 #Z = 1860/7, X=(24/7, 30/7), Xd=(1/7, 9/70,0,0), Y=(0, 0, 500/7, 300/7), Yd=(0, 0), status = 0
-b = [0.2 0.3 3 1.2]
-A = [[0.1 0]; [0 0.1]; [0.5 0.3]; [0.1 0.2]]
+goal = "min"
 c = [40 30]
+b = [0.2 0.3 3 1.2]
+A = [0.1 0; 0 0.1; 0.5 0.3; 0.1 0.2]
 csigns = [1 1 1 1]
 vsigns = [1 1]
-goal = "min"
 Z, X, Xd, Y, Yd, status = general_simplex(goal, c, A, b, csigns, vsigns)
 println(Z)
 println(X)
@@ -567,17 +566,17 @@ println(Y)
 println(Yd)
 println(status)
 
-#Primjer 5
-#Problem maximizacije sa ogranicenjima tipa <= i >=
+#test 5
+#maksimizacija sa drugacijim znakovima ogranicenja
 
-#Zadatak Poglavlje 4_Dualnost_u_linearnom programiranju strana 20
+#Primjer 4.7 iz Dualnosti u linearnom programiranju knjiga str 168
 #Z = 36, X=(2, 6), Xd=(2, 0, 0, 1, 16), Y=(0, 3/2, 1, 0, 0), Yd=(0, 0), status = 0
-b = [4 12 18 21 6]
-A = [[1 0]; [0 2]; [3 2]; [1 3]; [2 3]]
+goal = "max"
 c = [3 5]
+b = [4 12 18 21 6]
+A = [1 0; 0 2; 3 2; 1 3; 2 3]
 csigns = [-1 -1 -1 -1 1]
 vsigns = [1 1]
-goal = "max"
 Z, X, Xd, Y, Yd, status = general_simplex(goal, c, A, b, csigns, vsigns)
 println(Z)
 println(X)
@@ -587,17 +586,17 @@ println(Yd)
 println(status)
 
 
-#Primjer 6
-#Dualni problem primjera 5 sa varijablama čija su ograničenja <= umjesto standardnog >=
+#test 6
+#dual prethodnog testa
 
-#Zadatak Poglavlje 4_Dualnost_u_linearnom programiranju strana 20
+#Primjer 4.7 iz Dualnosti u linearnom programiranju knjiga str 169
 #Z = 36, X=(0, 3/2, 1, 0, 0), Xd=(0, 0), Y=(2, 6), Yd=(2, 0, 0, 1, 16), status = 0
+goal = "min"
 c = [4 12 18 21 6]
-A = [[1 0 3 1 2]; [0 2 2 3 3]]
 b = [3 5]
+A = [1 0 3 1 2; 0 2 2 3 3]
 csigns = [1 1]
 vsigns = [1 1 1 1 -1]
-goal = "min"
 Z, X, Xd, Y, Yd, status = general_simplex(goal, c, A, b, csigns, vsigns)
 println(Z)
 println(X)
@@ -607,17 +606,17 @@ println(Yd)
 println(status)
 
 
-#Primjer 7
-#Problem sa svim ogranicenjima oblika "="
+#test 7
+#sva ogranicenja =
 
-#Zadatak Poglavlje 4_Dualnost_u_linearnom programiranju strana 24
+#Primjer 4.9 iz Dualnosti u linearnom programiranju knjiga str 174
 #Z = 700, X=(1, 0, 3), Xd=(0, 0), Y=(400, -100), Yd=(0, 400, 0), status = 0
-b = [4 9]
-A = [[1 2 1]; [3 1 2]]
+goal = "max"
 c = [100 300 200]
+b = [4 9]
+A = [1 2 1; 3 1 2]
 csigns = [0 0]
 vsigns = [1 1 1]
-goal = "max"
 Z, X, Xd, Y, Yd, status = general_simplex(goal, c, A, b, csigns, vsigns)
 println(Z)
 println(X)
@@ -627,17 +626,17 @@ println(Yd)
 println(status)
 
 
-#Primjer 8
-#Dual primjera 6, gdje su varijable funkcije cilja neogranicene po znaku
+#test 8
+#dual prethodnog testa međutim sad su domene promjenjivih neograničene
 
 #Zadatak Poglavlje 4_Dualnost_u_linearnom programiranju strana 25
 #Z = 700, X=(400, -100), Xd=(0, 400, 0), Y=(1, 0, 3), Yd=(0, 0), status = 0
+goal = "min"
 c = [4 9]
-A = [[1 3]; [2 1]; [1 2]]
 b = [100 300 200]
+A = [1 3; 2 1; 1 2]
 csigns = [1 1 1]
 vsigns = [0 0]
-goal = "min"
 Z, X, Xd, Y, Yd, status = general_simplex(goal, c, A, b, csigns, vsigns)
 println(Z)
 println(X)
@@ -646,16 +645,16 @@ println(Y)
 println(Yd)
 println(status)
 
-#Primjer 9
-#Problem maksimizacije sa beskonacno mnogo rjesenja
+#test 9
+#maksimizacija sa status 2
 
 #Z = 2.0, X=(1.5, 0.5), Xd=(1, 0, 0), Y=(0, 1, 0), Yd=(0, 0), status = 2
+goal = "max"
 c = [1 1]
-A = [[1 1]; [1 1]; [1 -1]]
 b = [3 2 1]
+A = [1 1; 1 1; 1 -1]
 csigns = [-1 -1 1]
 vsigns = [1 1]
-goal = "max"
 Z, X, Xd, Y, Yd, status = general_simplex(goal, c, A, b, csigns, vsigns)
 println(Z)
 println(X)
@@ -664,14 +663,14 @@ println(Y)
 println(Yd)
 println(status)
 
-#Primjer 10
-#Problem maksimizacije sa degeneriranim rjesenjem
+#test 10
+#maksimizacija sa degeneracijom
 
 #Z = 1, X=(1, 0, 0), Xd=(0, 0, 0), Y=(0, 1, 1), Yd=(0, 0, 0), status = 1
 goal = "max";
 c = [1 1 1];
-A = [[1 1 0]; [0 -1 1]; [1 2 0]];
 b = [1 0 1];
+A = [1 1 0; 0 -1 1; 1 2 0];
 csigns = [-1 -1 -1];
 vsigns = [1 1 1];
 Z, X, Xd, Y, Yd, status = general_simplex(goal, c, A, b, csigns, vsigns)
@@ -682,17 +681,16 @@ println(Y)
 println(Yd)
 println(status)
 
-
-#Primjer 11
-#Dozvoljena oblast je neogranicena
+#test 11
+#neogranicena oblast
 
 #Z = Inf status = 3
 goal = "max";
-c = [1 1 1];
-A = [[1 1 0]; [0 -1 -1]];
-b = [1 0];
+c = [1 2];
+b = [1 3];
+A = [-2 1; 0 1];
 csigns = [-1 -1];
-vsigns = [1 1 1];
+vsigns = [1 1];
 Z, X, Xd, Y, Yd, status = general_simplex(goal, c, A, b, csigns, vsigns)
 println(Z)
 println(X)
@@ -701,13 +699,47 @@ println(Y)
 println(Yd)
 println(status)
 
-#Primjer 12
-#Dozvoljena oblast ne postoji
+#test 12
+#oblast nemoguca
 
 #Z = NaN status = 4
 goal = "max";
 c = [1 1];
-A = [[1 1]; [1 2]; [-0.5 2]];
+b = [2 3 1];
+A = [1 1; 1 2; -0.5 2];
+csigns = [-1 1 -1];
+vsigns = [1 1];
+Z, X, Xd, Y, Yd, status = general_simplex(goal, c, A, b, csigns, vsigns)
+println(Z)
+println(X)
+println(Xd)
+println(Y)
+println(Yd)
+println(status)
+
+#test 13
+#namjerno pogrešni parametri
+
+goal = "max";
+c = [1 1];
+A = [1 1; 1 2; -0.5 2];
+b = [2 3 1];
+csigns = [-1 1 -1];
+vsigns = [1 2];
+Z, X, Xd, Y, Yd, status = general_simplex(goal, c, A, b, csigns, vsigns)
+println(Z)
+println(X)
+println(Xd)
+println(Y)
+println(Yd)
+println(status)
+
+#test 14
+#namjerno pogrešni parametri
+
+goal = "max";
+c = [1 1 3];
+A = [1 1; 1 2; -0.5 2];
 b = [2 3 1];
 csigns = [-1 1 -1];
 vsigns = [1 1];
@@ -719,16 +751,15 @@ println(Y)
 println(Yd)
 println(status)
 
-#Primjer 13
-#Greska u parametrima
+#test 15
+#namjerno pogrešni parametri
 
-#status = 5
-goal = "max";
+goal = "maks";
 c = [1 1];
-A = [[1 1]; [1 2]; [-0.5 2]];
+A = [1 1; 1 2; -0.5 2];
 b = [2 3 1];
 csigns = [-1 1 -1];
-vsigns = [1 2];
+vsigns = [1 1];
 Z, X, Xd, Y, Yd, status = general_simplex(goal, c, A, b, csigns, vsigns)
 println(Z)
 println(X)
