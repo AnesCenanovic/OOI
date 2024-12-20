@@ -1,61 +1,92 @@
-using Pkg
-Pkg.add("LightGraphs")
-using LightGraphs
 
-function cpm(A,P,T)
 
-    g=DiGraph(length(A))
+function cpm(A, P, T)
 
-        for(i,pred) in enumerate(P)
-            for p in split(pred,", ")
-                if p!="-"
-                    add_edge!(g, findfirst(x -> x == p, A), i)
+    number = size(A,1) # broj aktivnosti
+    start = zeros(1, number + 1) # pohrana najranijeg mogućeg vremena početka
+
+    for i = 1:number
+        predecessor = P[i]
+        if predecessor == "-"
+            start[1, i] = 0
+        elseif length(predecessor) == 1
+            start[1, i] = start[1, Int(only(predecessor)) - 64] + T[Int(only(predecessor)) - 64]
+        else
+            predecessors = split(predecessor, ",")
+            max = 0
+            for j = 1:length(predecessors)
+                if start[1, Int(only(predecessors[j])) - 64] + T[i] > max
+                    max = start[Int(only(predecessors[j])) - 64] + T[Int(only(predecessors[j])) - 64]
+                end
+            end
+            start[1, i] = max
+        end
+    end
+
+
+    max = 0;
+    last = "";
+    for i = 1:number
+        if start[1, Int(only(A[i])) - 64] + T[i] > max
+            max = start[1, Int(only(A[i])) - 64] + T[i];
+            last = A[i];
+        end
+    end
+
+    start[size(start, 1)] = max;
+    Z = max;
+    total = max - T[Int(only(last)) - 64];
+    path = [last];
+    current = last;
+
+    while true
+        i = Int(only(current)) - 64
+        predecessor = P[i];
+        if predecessor == "-"
+            break
+        elseif (length(predecessor) == 1)
+            total -= T[i];
+            current = predecessor;
+            path = [current "-" path];
+        else
+            predecessors = split(predecessor, ",");
+            for j = 1:size(predecessors, 1)
+                if start[1, Int(only(predecessors[j])) - 64] + T[Int(only(predecessors[j])) - 64] == total
+                    total -= T[Int(only(predecessors[j])) - 64];
+                    current = predecessors[j];
+                    path = [current "-" path];
+                    break
                 end
             end
         end
-
-    early_start = Dict(a => 0 for a in A)
-    early_finish = Dict(a => 0 for a in A)
-    late_finish = Dict(a => 0 for a in A)
-    late_start = Dict(a => 0 for a in A)
-
-    for a in g
-        if length(inneighbors(g, a)) == 0
-            early_start[a] = 0
-        else
-            early_start[a] = maximum(early_finish[p] for p in inneighbors(g, a))
-        end
-        early_finish[a] = early_start[a] + T[a]
     end
-
-    late_finish[last(g)] = early_finish[last(g)]
-    for a in reverse(g)
-        if length(outneighbors(g, a)) == 0
-            late_start[a] = late_finish[a] - T[a]
-        else
-            late_start[a] = minimum(late_start[s] - T[s] for s in outneighbors(g, a))
-        end
-        late_finish[a] = late_start[a] + T[a]
-    end
-
-    # Identify the critical path
-    critical_path = []
-    current = last(g)
-    while current != 0
-        push!(critical_path, current)
-        next_nodes = outneighbors(g, current)
-        if length(next_nodes) == 0 || all(late_start[n] == early_start[n] for n in next_nodes)
-            current = first(next_nodes)
-        else
-            current = argmin(late_start, next_nodes)
-        end
-    end
-
-    return reverse(critical_path), late_finish[last(g)]
+    return Z, path;
 end
 
+#Z = 12 put = "C – D – G – I"
+display("Test 1:")
 A = ["A", "B", "C", "D", "E", "F", "G", "H", "I"]
-P = ["-", "-", "-", "C", "A", "A", "B, D", "E", "F, G"]
+P = ["-", "-", "-", "C", "A", "A", "B,D", "E", "F,G"]
 T = [3, 3, 2, 2, 4, 1, 4, 1, 4]
+Z, put = CPM(A, P, T)
+display(Z)
+display(put)
 
-Z, put = cpm(A, P, T)
+#Z = 11 put = "B - E - G"
+display("Test 2:")
+A = ["A", "B", "C", "D", "E", "F", "G", "H", "I"]
+P = ["-", "-", "-", "A", "A,B", "C", "D,E,F", "C", "H"]
+T = [2,5,4,4,2,2,4,1,2]
+Z, put = CPM(A, P, T);
+display(Z)
+display(put)
+
+#Z = 121 put = "A - B - C - G"
+display("Test 3:")
+A = ["A", "B", "C", "D", "E", "F", "G"]
+P = ["-", "A", "B", "A", "D", "E", "C,F"]
+T = [25, 30, 60, 1, 50, 4, 6]
+Z, put = CPM(A, P, T);
+display(Z)
+display(put)
+
