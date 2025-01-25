@@ -3,6 +3,7 @@ Pkg.add("JuMP")
 Pkg.add("GLPK")
 using JuMP, GLPK
 
+#Anes Ćenanović 19160
 
 function transport(cost, supply, demand)
     
